@@ -18,8 +18,17 @@ build-python-benchmark:
 build-python-system:
 	docker build -t sail-ws-2024-python-baseline-system -f python/baseline-system/Dockerfile .
 
+###################################
+# Platform-related commands
+###################################
+
 remove-hobbit-containers:
 	docker rm -f $(docker ps -a -q --filter "label=org.hobbit.type")
+
+create-networks:
+	@docker network inspect hobbit >/dev/null || (docker network create -d overlay --attachable --subnet 172.16.100.0/24 hobbit && echo "Created network: hobbit")
+	@docker network inspect hobbit-core >/dev/null || (docker network create -d overlay --attachable --subnet 172.16.101.0/24 hobbit-core && echo "Created network: hobbit-core")
+	@docker network inspect hobbit-services >/dev/null || (docker network create -d overlay --attachable --subnet 172.16.102.0/24 hobbit-services && echo "Created network: hobbit-services")
 
 start-hobbit-platform:
 	docker compose up -d

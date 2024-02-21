@@ -13,7 +13,6 @@ services:
       SWARM_NODE_NUMBER: "1"
       LOCAL_METADATA_DIRECTORY: "/usr/src/app/metadata"
     volumes:
-    volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./meta:/usr/src/app/metadata
 
@@ -69,7 +68,7 @@ services:
     stop_signal: SIGINT
     stop_grace_period: 2m
     volumes:
-      - ./db:/opt/virtuoso-opensource/database
+      - ./config/db:/opt/virtuoso-opensource/database
     networks:
       - hobbit-core
     ports:
