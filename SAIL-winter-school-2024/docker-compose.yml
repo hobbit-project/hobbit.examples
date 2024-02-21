@@ -9,7 +9,10 @@ services:
       HOBBIT_RABBIT_IMAGE: "rabbitmq:management"
       HOBBIT_RABBIT_HOST: "rabbit"
       HOBBIT_REDIS_HOST: "redis"
-      DEPLOY_ENV: "development"
+      DEPLOY_ENV: "develop"
+      USE_GITLAB_KEY : "false"
+      DOCKER_AUTOPULL: "0"
+      CONTAINER_PARENT_CHECK: "0"
       SWARM_NODE_NUMBER: "1"
       LOCAL_METADATA_DIRECTORY: "/usr/src/app/metadata"
     volumes:

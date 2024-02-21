@@ -3,3 +3,9 @@
 .classpath
 .project
 target
+SAIL-winter-school-2024/config/db/virtuoso-temp.db
+SAIL-winter-school-2024/config/db/virtuoso.db
+SAIL-winter-school-2024/config/db/virtuoso.log
+SAIL-winter-school-2024/config/db/virtuoso.trx
+SAIL-winter-school-2024/config/db/virtuoso.lck
+SAIL-winter-school-2024/config/redis-db/*
