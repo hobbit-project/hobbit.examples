@@ -1,0 +1,68 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix hobbit: <http://w3id.org/hobbit/vocab#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://example.org/sail-winter-school-2024/benchmark/> .
+
+:BenchmarkPython a hobbit:Benchmark;
+  rdfs:label "SAIL Winter School 2024 Example Benchmark (Python)"@en;
+  rdfs:comment "This is an example benchmark developed for the SAIL Winter School 2024. It is based on a wine quality prediction scenario suggested by Cortez et al."@en;
+  hobbit:imageName "sail-ws-2024-python-benchmark";
+  hobbit:hasParameter
+    :dataset,
+    :seed,
+    :testDataSize;
+  hobbit:measuresKPI
+    :avgRuntime,
+    :stdDevRuntime,
+    :faultyResponses;
+  hobbit:hasAPI :Api .
+
+:Api a hobbit:API .
+
+:dataset a hobbit:Parameter, hobbit:ConfigurableParameter;
+  rdfs:label "Dataset"@en;
+  rdfs:comment "The name of the dataset that should be used."@en;
+  rdfs:domain hobbit:Experiment, hobbit:Challenge;
+  rdfs:range :WineDataset;
+  hobbit:defaultValue :CortezWhite .
+
+:CortezRed a :WineDataset;
+  rdfs:label "Red wine"@en;
+  rdfs:comment "The red wine dataset proposed by Cortez et al."@en;
+  :fileName "winequality-red.csv" .
+
+:CortezWhite a :WineDataset;
+  rdfs:label "White wine"@en;
+  rdfs:comment "The white wine dataset proposed by Cortez et al."@en;
+  :fileName "winequality-white.csv" .
+
+:seed a hobbit:Parameter, hobbit:ConfigurableParameter;
+  rdfs:label "Seed"@en;
+  rdfs:comment "A seed value for initialising random number generators is used to ensure the repeatability of experiments."@en;
+  rdfs:domain hobbit:Experiment, hobbit:Challenge;
+  rdfs:range xsd:integer;
+  hobbit:defaultValue "42"^^xsd:integer .
+
+:testDataSize a hobbit:Parameter, hobbit:FeatureParameter ;
+  rdfs:label "Test dataset size"@en;
+  rdfs:comment "The number of instances in the test dataset."@en;
+  rdfs:domain hobbit:Experiment, hobbit:Challenge;
+  rdfs:range xsd:long .
+
+:avgRuntime a hobbit:KPI ;
+  rdfs:label "Average runtime (in ms)"@en;
+  rdfs:comment "The average runtime the system needed to predict the quality of a single wine in milliseconds."@en;
+  rdfs:domain hobbit:Experiment, hobbit:Challenge;
+  rdfs:range xsd:double .
+
+:stdDevRuntime a hobbit:KPI ;
+  rdfs:label "Runtime standard deviation"@en;
+  rdfs:comment "The standard deviation of the runtime."@en;
+  rdfs:domain hobbit:Experiment, hobbit:Challenge;
+  rdfs:range xsd:double .
+
+:faultyResponses a hobbit:KPI ;
+  rdfs:label "Number of faulty responses"@en;
+  rdfs:comment "The number of responses provided by the system that couldn't be parsed by the benchmark."@en;
+  rdfs:domain hobbit:Experiment, hobbit:Challenge;
+  rdfs:range xsd:long .

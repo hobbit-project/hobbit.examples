@@ -1,0 +1,10 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix hobbit: <http://w3id.org/hobbit/vocab#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/sail-winter-school-2024/base-line-system-java> a  hobbit:SystemInstance;
+	rdfs:label	"Baseline system (Java)"@en;
+	rdfs:comment	"This is a baseline system which always returns the average of the target value that it saw during the training phase. It has been programmed in Java."@en;
+	hobbit:imageName "sail-ws-2024-java-baseline-system";
+	hobbit:implementsAPI <http://example.org/sail-winter-school-2024/benchmark/Api> .
+
