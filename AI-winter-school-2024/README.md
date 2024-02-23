@@ -121,12 +121,97 @@ TODO
 
 ### Dataset Extension
 
-Find a dataset, that can be used to regression. You can for example look at https://archive.ics.uci.edu/.
+The current imeplementation contains only the two wine-related datasets of Cortez et al. However, there are other interesting datasets for regression available. If you find such an example (e.g., at https://archive.ics.uci.edu/) you can integrate it into the benchmark.
 
-#### Implementation
+In the following, we will assume that we have found a dataset about weather, in which a regression should predict the amount of rain that falls on a certain day based on additional data (air pressure, temperature, etc.). The dataset comprises a single file named `rain.dat`.
 
-We suggest to keep the API of the benchmark as it is, i.e., it would be best to load the data and transform it into the same CSV format that is already used. The 
+#### Data Files
+
+First, you should move the file(s) of the new dataset into the `data` directory. This directory will be copied into the benchmark and available as `/data` directory.
+
+In our example, we move `rain.dat` to `data/rain.dat`.
 
 #### Meta Data Update
 
-TODO
+Depending on whether you prefer to program in Java or Python, you should open either `meta/ai-ws-2024-benchmark-java.ttl` or `ai-ws-2024-benchmark-python.ttl`. In both files, you will find the following lines:
+```turtle
+:CortezRed a :WineDataset;
+  rdfs:label "Red wine"@en;
+  rdfs:comment "The red wine dataset proposed by Cortez et al."@en .
+```
+We can simply copy these lines into the same file and adapt them to our needs. In our example, we could define our dataset as follows:
+```diff
+ :CortezRed a :WineDataset;
+   rdfs:label "Red wine"@en;
+   rdfs:comment "The red wine dataset proposed by Cortez et al."@en .
++
++:RainForecast a :WineDataset;
++  rdfs:label "Rain forecast"@en;
++  rdfs:comment "A dataset about forecasting the amount of rain that will fall on a particular day."@en .
+```
+Note that with this line, we defined the label and description of our dataset as well as an IRI: `http://example.org/ai-winter-school-2024/benchmark/RainForecast`.
+
+#### Implementation
+
+Finally, we should implement a piece of code that loads the data. We suggest to keep the API of the benchmark as it is, i.e., it would be best to load the data and transform it into the same CSV format that is already used. However, this step depends a lot on the new dataset. Hence, we cannot give an exact example what has to be implemented but we can point out where it should be implemented.
+
+##### Java
+If you use Java, you should have a look at the `init` method of the [BenchmarkController class](https://github.com/hobbit-project/hobbit.examples/blob/main/AI-winter-school-2024/java/benchmark/src/main/java/org/dice_research/hobbit/example/aiws24/BenchmarkController.java):
+```java
+        String datasetFileName = null;
+        switch (dataset.getURI()) {
+        case "http://example.org/ai-winter-school-2024/benchmark/CortezRed": {
+            datasetFileName = "winequality-red.csv";
+            break;
+        }
+        case "http://example.org/ai-winter-school-2024/benchmark/CortezWhite": {
+            datasetFileName = "winequality-white.csv";
+            break;
+        }
+        default: {
+            LOGGER.error("Unknown dataset IRI {}", dataset.getURI());
+            throw new IllegalStateException("Couldn't get dataset file name from parameter model.");
+        }
+        }
+        datasetFile = new File(DATA_DIRECTORY + datasetFileName);
+```
+You should add the IRI of your new dataset to the switch case statement above to set the name of your file. In our example, we could add:
+```java
+        case "http://example.org/ai-winter-school-2024/benchmark/RainForecast": {
+            datasetFileName = "rain.dat";
+            break;
+        }
+```
+We also have to ensure that loading the data is adapted. This should be done at the `loadAndSplitData` method:
+```java
+    protected void loadAndSplitData() throws IOException {
+        List<String> lines = FileUtils.readLines(datasetFile);
+```
+The first line of the method loads the lines of a CSV file. As described above, depending on the new dataset file structure, we suggest to implement the loading in a way that it creates CSV lines of the same structure and provides them as a list of Strings (e.g., as `List<String> lines`).
+
+##### Python
+
+If you use Python, you should have a look at the `prepare_data` method of the [benchmark.py](https://github.com/hobbit-project/hobbit.examples/blob/main/AI-winter-school-2024/python/benchmark/benchmark.py):
+```python
+    def prepare_data(self):
+        """
+        Load dataset and split it into train and test.
+        """
+        data_file = None
+        if (BENCHMARK_NAMESPACE + "CortezRed").__eq__(self.dataset_iri):
+            data_file = DATA_FOLDER_PATH + "winequality-red.csv"
+        elif (BENCHMARK_NAMESPACE + "CortezWhite").__eq__(self.dataset_iri):
+            data_file = DATA_FOLDER_PATH + "winequality-white.csv"
+        else:
+            logger.error(f"Unknown dataset IRI {self.dataset_iri}.")
+            raise AttributeError()
+        # Load file
+        data = pd.read_csv(data_file, sep=FILE_CSV_SEPARATOR)
+```
+You should add the IRI of your new dataset in an additional `elif` clause to set the name of your file. In our example, we could add:
+```python
+        elif (BENCHMARK_NAMESPACE + "RainForecast").__eq__(self.dataset_iri):
+            data_file = DATA_FOLDER_PATH + "rain.dat"
+```
+We also have to ensure that loading the data is adapted. This is currently done in the last line of the previous excerpt, which loads the data from a CSV file using the pandas library. As described above, depending on the new dataset file structure, we suggest to implement the loading in a way that it creates a pandas data frame of the same structure as it would have if we would use the CSV files.
+
