@@ -1,6 +1,6 @@
-# SAIL Winter School 2024 – Evaluating Machine Learning
+# AI Winter School 2024 – Evaluating Machine Learning
 
-This directory contains is used for the [SAIL Winter School 2024](https://indico.uni-paderborn.de/event/62/). It comes with a pre-configured HOBBIT platform deployment for local development as well as a very basic benchmark and baseline system implementation for Java and Python, respectively.
+This directory contains is used for the [AI Winter School 2024](https://indico.uni-paderborn.de/event/62/). It comes with a pre-configured HOBBIT platform deployment for local development as well as a very basic benchmark and baseline system implementation for Java and Python, respectively.
 
 ## Scenario and Benchmark Design
 

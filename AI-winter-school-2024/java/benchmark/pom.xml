@@ -5,7 +5,7 @@
     <groupId>org.dice-research</groupId>
     <artifactId>hobbit.example.sail-2024-winter-school-benchmark</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>SAIL Winter School 2024 Benchmark</name>
+    <name>AI Winter School 2024 Benchmark</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
