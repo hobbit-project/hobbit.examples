@@ -4,7 +4,7 @@ This directory contains is used for the [SAIL Winter School 2024](https://indico
 
 ## Scenario and Benchmark Design
 
-The target of this tutorial is to implement a benchmark for a regression task. As example, we use the [🍷 wine quality dataset](https://archive.ics.uci.edu/dataset/186/wine+quality) of Cortez et al. In the following, we will briefly look at the data, define the task that a benchmarked system should fulfill and design of the benchmark and its API.
+The target of this tutorial is to implement a benchmark for a regression task. As example, we use the [🍷 wine quality dataset](https://archive.ics.uci.edu/dataset/186/wine+quality) of [Cortez et al](https://repositorium.sdum.uminho.pt/bitstream/1822/10029/1/wine5.pdf). In the following, we will briefly look at the data, define the task that a benchmarked system should fulfill and design of the benchmark and its API.
 
 ### Data 
 
@@ -18,9 +18,9 @@ The dataset comprises two files. One file is for red, the second is for white wi
 ```
 The structure of the file will be important later on. At the moment, it is sufficient to recognize that the file contains several features in a tabular format and that the last column contains the `"quality"`. This is the target value, that a system should predict.
 
-### Task
+### System's Task
 
-We define the task that a system, which will be evaluated with our benchmark, should fulfill is defined as a regression. The target value are the quality levels 0 (very bad) to 10 (excellent). Note that the data itself only contains labels ranging from 3 to 9 and that the data is unbalanced, i.e., the most wines belong to the quality levels 5, 6 or 7.
+We define the task that a system, which will be evaluated with our benchmark, should fulfill as a regression. The target values are the quality levels 0 (very bad) to 10 (excellent). Note that the data itself only contains labels ranging from 3 to 9 and that the data is unbalanced, i.e., the most wines belong to the quality levels 5, 6 or 7.
 
 We further want to enable the usage of supervised machine learning. Hence, our benchmark has to ensure that the data is split into training and test data. The training data has to be made available for the system to train an algorithm. Further, we define that the split should be done randomly and that 90% of the data should be used for training.
 
@@ -28,12 +28,11 @@ The benchmark should measure the effectiveness and efficiency of a system. While
 
 ### Benchmark Design
 
-A major part of the work on a benchmark is to define its internal workflow and the API that the system has to implement to be evaluated by the benchmark. We rely on the [suggested workflow of a benchmark](experiment_workflow.html). Hence, our benchmark implementation will comprise a Data Generator, a Task Generator, an Evaluation Storage, an Evaluation Module, and a Benchmark Controller. We will make use of a default implementation for the Evaluation Storage. All other components will be implemented within this tutorial.
-
-In addition to the [general API of the HOBBIT platform](system_integration_api.html) that has to be implemented by the system, the benchark's API comprises the following parts:
-1. The task definition above already stated that the data has to be split to get training and test data. We define that 10% of the dataset are randomly chosen as test dataset. The remaining 90% are used as training data and are sent to the system at the beginning as a CSV file of the form above, without the headline.
+A major part of the work on a benchmark is to define its internal workflow and the API that the system has to implement to be evaluated by the benchmark. For this example, we use a quite simple setup with only two containers—a benchmark and a system container. In addition to the [general API of the HOBBIT platform](system_integration_api.html) that has to be implemented by the system, the benchark's API comprises the following parts:
+1. The task definition above already stated that the data has to be split to get training and test data. We define that 10% of the dataset are randomly chosen as test dataset. The remaining 90% are used as training data and are sent to the system at the beginning as a CSV file of the form above.
 2. The system should have the time to train an internal algorithm using the training data. Hence, the evaluation of the system should only start after the system signalled that the internal training has finished and that it is ready to be benchmarked.
-3. The benchmark will sent the single tasks (i.e., the instances of the test set) as CSV lines as above (without the quality column).
+3. The benchmark will sent the single tasks (i.e., the instances of the test set) as CSV comprising the headline and a single data line. The first column of the line contains the ID of the task, which has to be part of the response. The column with the quality level is removed before submission.
+4. The system is expected to send a single CSV line comprising two values: Firstly, the task ID. Secondly, the value that it predicts for the task.
 
 Our benchmark will have several parameters:
 * **Dataset**: There are two wine datasets. One for red and a second for white wine. The user should be able to choose which dataset they want to use.
@@ -41,12 +40,10 @@ Our benchmark will have several parameters:
 * **Test dataset size**: The benchmark should report the size of the randomly created test dataset.
 
 The benchmark should provide the following evaluation results (also called key performance indicators (KPIs)):
-* **MSE**: The mean squared error (MSE) that the benchmarked system achieves.
 * **Runtime**: The average runtime that the system needs to answer a request (including its standard deviation).
 * **Faulty responses**: The number of faulty responses that the system may have produced. This avoids to include them into the error calculation and allows the benchmark to report that the system did not always create correctly formed answers.
 
 The figure below gives an overview of the benchmark and its components as well as the type of data that they send to each other.
-In this tutorial, we will implement all components, except the Evaluation Storage for which we will reuse an existing implementation.
 
 <p align="center">
   <img src="/images/Components-diagram-wine-benchmark.svg" />
@@ -63,13 +60,17 @@ In addition, an editor for developing Java or Python programs should be availabl
 
 ## Preparations
 
-TODO
-
-Run once:
+You should download / checkout this directory. Within this directory, we already prepared the HOBBIT platform in a local, development-friendly setup for you. Before starting the HOBBIT platform, you should run the following two commands once:
+```sh
 docker swarm init
 make create-networks
+```
+The first will initialize the swarm mode of Docker. The second will create three Docker overlay networks, which are needed for the components to talk to each other later on.
 
-## Benchmark API
+After that, the platform can be started with:
+```
+make start-hobbit-platform
+```
 
 ## Tasks
 
