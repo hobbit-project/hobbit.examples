@@ -1,3 +1,5 @@
+DOCKER_COMPOSE=docker-compose
+
 build: build-java build-python
 
 build-java: build-java-benchmark build-java-system
@@ -29,7 +31,7 @@ create-networks:
 	@docker network inspect hobbit-services >/dev/null || (docker network create -d overlay --attachable --subnet 172.16.102.0/24 hobbit-services && echo "Created network: hobbit-services")
 
 start-hobbit-platform:
-	docker compose up -d
+	$(DOCKER_COMPOSE) up -d
 
 stop-hobbit-platform:
-	docker compose down
+	$(DOCKER_COMPOSE) down
