@@ -23,7 +23,7 @@ build-python-system:
 ###################################
 
 remove-hobbit-containers:
-	docker rm -f $(docker ps -a -q --filter "label=org.hobbit.type")
+	docker ps -a -q --filter "label=org.hobbit.type" | xargs docker rm -f
 
 create-networks:
 	@docker network inspect hobbit >/dev/null || (docker network create -d overlay --attachable --subnet 172.16.100.0/24 hobbit && echo "Created network: hobbit")
