@@ -13,8 +13,8 @@ FROM openjdk:17-slim
 WORKDIR /app
 
 # Add the compiled java program
-COPY --from=build /app/target/sail-24-ws-baseline.jar .
+COPY --from=build /app/target/ai-ws-2024-baseline.jar .
 
 # Run our component
-CMD java -cp sail-24-ws-baseline.jar org.hobbit.core.run.ComponentStarter org.dice_research.hobbit.example.sailws24.BaselineSystem
+CMD java -cp ai-ws-2024-baseline.jar org.hobbit.core.run.ComponentStarter org.dice_research.hobbit.example.aiws24.BaselineSystem
 

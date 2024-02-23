@@ -26,7 +26,7 @@ LEARNING_FINISHED_SIGNAL = 101
 MAX_CONNECTION_ATTEMPTS = 5
 SECONDS_BETWEEN_CONNECTION_ATTEMPTS = 5
 
-BENCHMARK_NAMESPACE = "http://example.org/sail-winter-school-2024/benchmark/"
+BENCHMARK_NAMESPACE = "http://example.org/ai-winter-school-2024/benchmark/"
 # Specify the folder path containing your CSV files within the Docker container
 DATA_FOLDER_PATH = '/data/'
 FILE_CSV_SEPARATOR = ';'
@@ -42,7 +42,7 @@ class BenchmarkResult:
         self.value = value
 
 
-class SailWinterSchoolBenchmark:
+class AIWinterSchoolBenchmark:
 
     def __init__(self):
         self.session_id = os.getenv("HOBBIT_SESSION_ID")
@@ -430,7 +430,7 @@ def main():
     processes incoming tasks, and waits for the TASK_GENERATION_FINISHED
     signal before exiting.
     """
-    benchmark = SailWinterSchoolBenchmark()
+    benchmark = AIWinterSchoolBenchmark()
     benchmark.run()
 
 

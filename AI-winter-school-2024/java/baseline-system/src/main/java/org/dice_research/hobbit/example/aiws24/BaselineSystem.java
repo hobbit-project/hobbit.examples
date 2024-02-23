@@ -1,4 +1,4 @@
-package org.dice_research.hobbit.example.sailws24;
+package org.dice_research.hobbit.example.aiws24;
 
 import java.io.IOException;
 

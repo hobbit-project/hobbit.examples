@@ -1,12 +1,12 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix hobbit: <http://w3id.org/hobbit/vocab#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix : <http://example.org/sail-winter-school-2024/benchmark/> .
+@prefix : <http://example.org/ai-winter-school-2024/benchmark/> .
 
 :BenchmarkJava a hobbit:Benchmark;
-  rdfs:label "SAIL Winter School 2024 Example Benchmark (Java)"@en;
-  rdfs:comment "This is an example benchmark developed for the SAIL Winter School 2024. It is based on a wine quality prediction scenario suggested by Cortez et al."@en;
-  hobbit:imageName "sail-ws-2024-java-benchmark";
+  rdfs:label "AI Winter School 2024 Example Benchmark (Java)"@en;
+  rdfs:comment "This is an example benchmark developed for the AI Winter School 2024. It is based on a wine quality prediction scenario suggested by Cortez et al."@en;
+  hobbit:imageName "ai-ws-2024-java-benchmark";
   hobbit:hasParameter
     :dataset,
     :seed,

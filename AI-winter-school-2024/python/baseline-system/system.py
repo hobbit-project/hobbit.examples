@@ -25,7 +25,7 @@ LEARNING_FINISHED_SIGNAL = 101
 MESSAGE_CSV_SEPARATOR = ';'
 
 
-class SailWinterSchoolBaselineSystem:
+class AIWinterSchoolBaselineSystem:
 
     def __init__(self):
         self.session_id = os.getenv("HOBBIT_SESSION_ID")
@@ -355,7 +355,7 @@ def main():
     processes incoming tasks, and waits for the TASK_GENERATION_FINISHED
     signal before exiting.
     """
-    system = SailWinterSchoolBaselineSystem()
+    system = AIWinterSchoolBaselineSystem()
     system.run()
 
 

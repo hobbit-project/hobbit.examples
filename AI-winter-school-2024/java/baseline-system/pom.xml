@@ -3,7 +3,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.dice-research</groupId>
-    <artifactId>hobbit.example.sail-2024-winter-school-baseline</artifactId>
+    <artifactId>hobbit.example.ai-ws-2024-baseline</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>AI Winter School 2024 Baseline System</name>
 
@@ -50,7 +50,7 @@
     </dependencies>
 
     <build>
-        <finalName>sail-24-ws-baseline</finalName>
+        <finalName>ai-ws-2024-baseline</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

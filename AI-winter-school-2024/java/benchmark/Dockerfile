@@ -16,8 +16,8 @@ ADD data /data
 WORKDIR /app
 
 # Add the compiled java program
-COPY --from=build /app/target/sail-24-ws-benchmark.jar .
+COPY --from=build /app/target/ai-ws-2024-benchmark.jar .
 
 # Run our component
-CMD java -cp sail-24-ws-benchmark.jar org.hobbit.core.run.ComponentStarter org.dice_research.hobbit.example.sailws24.BenchmarkController
+CMD java -cp ai-ws-2024-benchmark.jar org.hobbit.core.run.ComponentStarter org.dice_research.hobbit.example.aiws24.BenchmarkController
 

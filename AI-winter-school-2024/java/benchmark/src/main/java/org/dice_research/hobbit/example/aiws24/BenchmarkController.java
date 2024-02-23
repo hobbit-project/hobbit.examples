@@ -1,4 +1,4 @@
-package org.dice_research.hobbit.example.sailws24;
+package org.dice_research.hobbit.example.aiws24;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class BenchmarkController extends AbstractBenchmarkController {
     public static final String DATA_DIRECTORY = "/data/";
     public static final String FILE_CSV_SEPARATOR = ";";
     public static final String MESSAGE_CSV_SEPARATOR = ";";
-    public static final String BENCHMARK_NAMESPACE = "http://example.org/sail-winter-school-2024/benchmark/";
+    public static final String BENCHMARK_NAMESPACE = "http://example.org/ai-winter-school-2024/benchmark/";
 
     protected Long seed = null;
     protected File datasetFile = null;
@@ -62,17 +62,17 @@ public class BenchmarkController extends AbstractBenchmarkController {
         super.init();
         // Read parameters
         Resource dataset = RdfHelper.getObjectResource(benchmarkParamModel, null,
-                benchmarkParamModel.getProperty("http://example.org/sail-winter-school-2024/benchmark/dataset"));
+                benchmarkParamModel.getProperty(BENCHMARK_NAMESPACE + "dataset"));
         if (dataset == null) {
             throw new IllegalStateException("Couldn't get dataset IRI from parameter model.");
         }
         String datasetFileName = null;
         switch (dataset.getURI()) {
-        case "http://example.org/sail-winter-school-2024/benchmark/CortezRed": {
+        case "http://example.org/ai-winter-school-2024/benchmark/CortezRed": {
             datasetFileName = "winequality-red.csv";
             break;
         }
-        case "http://example.org/sail-winter-school-2024/benchmark/CortezWhite": {
+        case "http://example.org/ai-winter-school-2024/benchmark/CortezWhite": {
             datasetFileName = "winequality-white.csv";
             break;
         }
@@ -83,7 +83,7 @@ public class BenchmarkController extends AbstractBenchmarkController {
         }
         datasetFile = new File(DATA_DIRECTORY + datasetFileName);
         seed = RdfHelper.getLongValue(benchmarkParamModel, null,
-                benchmarkParamModel.getProperty("http://example.org/sail-winter-school-2024/benchmark/seed"));
+                benchmarkParamModel.getProperty(BENCHMARK_NAMESPACE + "seed"));
         if (seed == null) {
             throw new IllegalStateException("Couldn't get seed from parameter model.");
         }

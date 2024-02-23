@@ -5,18 +5,18 @@ build: build-java build-python
 build-java: build-java-benchmark build-java-system
 
 build-java-benchmark:
-	docker build -t sail-ws-2024-java-benchmark -f java/benchmark/Dockerfile .
+	docker build -t ai-ws-2024-java-benchmark -f java/benchmark/Dockerfile .
 
 build-java-system:
-	docker build -t sail-ws-2024-java-baseline-system -f java/baseline-system/Dockerfile .
+	docker build -t ai-ws-2024-java-baseline-system -f java/baseline-system/Dockerfile .
 
 build-python: build-python-benchmark build-python-system
 
 build-python-benchmark:
-	docker build -t sail-ws-2024-python-benchmark -f python/benchmark/Dockerfile .
+	docker build -t ai-ws-2024-python-benchmark -f python/benchmark/Dockerfile .
 
 build-python-system:
-	docker build -t sail-ws-2024-python-baseline-system -f python/baseline-system/Dockerfile .
+	docker build -t ai-ws-2024-python-baseline-system -f python/baseline-system/Dockerfile .
 
 ###################################
 # Platform-related commands
