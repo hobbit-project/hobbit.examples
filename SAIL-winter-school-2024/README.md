@@ -67,10 +67,33 @@ make create-networks
 ```
 The first will initialize the swarm mode of Docker. The second will create three Docker overlay networks, which are needed for the components to talk to each other later on.
 
-After that, the platform can be started with:
-```
+### HOBBIT Platform
+
+After the initialization above, the platform can be started with:
+```sh
 make start-hobbit-platform
 ```
+After that, you can find the user interface (UI) of the platform at [http://localhost:8080].
+
+The platform can also be stopped with:
+```sh
+make stop-hobbit-platform
+```
+
+The Platform runs in develop mode. This ensures that you can access Docker containers of the benchmark and system even after they terminated. However, that also means that some of them might be still running. If you want to easily remove containers created by the platform (without stopping the platform itself), you can do that with the following command:
+```sh
+make remove-hobbit-containers
+```
+Note that this will also remove containers of a currently running experiment. So please only use it if you are sure that you do not need any of the containers anymore.
+
+### Benchmark and System
+
+We prepared two base implementations for the benchmark and system, respectively. One implementation is in Java and a second in Python. You will find them in the `java` and `python` directories. At the beginning, you may want to build them, to ensure that the build itself works and that you can run them on your local HOBBIT platform.
+```sh
+make build-java
+make build-python
+```
+After that, you can start an experiment by clicking on `Benchmarks` in the HOBBIT UI, choosing one of the benchmarks and one of the systems and pressing `Submit`.
 
 ## Tasks
 

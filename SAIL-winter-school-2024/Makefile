@@ -1,5 +1,3 @@
-.PHONY: all clean
-
 build: build-java build-python
 
 build-java: build-java-benchmark build-java-system
