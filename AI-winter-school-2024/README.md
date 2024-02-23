@@ -97,17 +97,36 @@ After that, you can start an experiment by clicking on `Benchmarks` in the HOBBI
 
 ## Tasks
 
+There are several improvements possible. Note that all of them can be either done with Java or Python. It is mainly up to you which language you prefer. You can also create teams with other students to work on several tasks in parallel, e.g., implement more systems and more KPIs to compare them.
+
 ### Add a new KPI
+
+The current benchmark implementation does not measure the quality of the results. The goal of this task is to add at least one KPI that does this.
 
 #### Implementation
 
-#### Meta Data update
+TODO
 
-### Add another System
+#### Meta Data Update
 
-#### Meta Data update
+TODO
+
+### Add a System
+
+TODO
+
+#### Meta Data Update
+
+TODO
 
 ### Dataset Extension
 
-Find a dataset, that fits to the task
-https://archive.ics.uci.edu/
+Find a dataset, that can be used to regression. You can for example look at https://archive.ics.uci.edu/.
+
+#### Implementation
+
+We suggest to keep the API of the benchmark as it is, i.e., it would be best to load the data and transform it into the same CSV format that is already used. The 
+
+#### Meta Data Update
+
+TODO
