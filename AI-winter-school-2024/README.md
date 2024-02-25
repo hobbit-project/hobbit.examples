@@ -1,6 +1,6 @@
 # AI Winter School 2024 – Evaluating Machine Learning
 
-This directory contains is used for the [AI Winter School 2024](https://indico.uni-paderborn.de/event/62/). It comes with a pre-configured HOBBIT platform deployment for local development as well as a very basic benchmark and baseline system implementation for Java and Python, respectively.
+This directory contains data and code used for the [AI Winter School 2024](https://indico.uni-paderborn.de/event/62/). It comes with a pre-configured HOBBIT platform deployment for local development as well as a very basic benchmark and baseline system implementation for Java and Python, respectively.
 
 ## Scenario and Benchmark Design
 
@@ -99,27 +99,188 @@ After that, you can start an experiment by clicking on `Benchmarks` in the HOBBI
 
 There are several improvements possible. Note that all of them can be either done with Java or Python. It is mainly up to you which language you prefer. You can also create teams with other students to work on several tasks in parallel, e.g., implement more systems and more KPIs to compare them.
 
-### Add a new KPI
+### 1. Add a new KPI
 
 The current benchmark implementation does not measure the quality of the results. The goal of this task is to add at least one KPI that does this.
 
+#### Meta Data Update
+
+Depending on whether you prefer to program in Java or Python, you should open either `meta/ai-ws-2024-benchmark-java.ttl` or `ai-ws-2024-benchmark-python.ttl`. In both files, you will find the following lines:
+```turtle
+:avgRuntime a hobbit:KPI ;
+  rdfs:label "Average runtime (in ms)"@en;
+  rdfs:comment "The average runtime the system needed to predict the quality of a single wine in milliseconds."@en;
+  rdfs:domain hobbit:Experiment, hobbit:Challenge;
+  rdfs:range xsd:double .
+```
+These lines define that `:avgRuntime` is a KPI with a label, a description, a domain (we can ignore that) and a range. The latter defines the type of value that it can have. In  this example, it is a floating point number.
+
+We can simply copy these lines into the same file and adapt them to our needs. In our example, we could define a new KPI as follows:
+```turtle
+:mySuperKpi a hobbit:KPI ;
+  rdfs:label "My super KPI"@en;
+  rdfs:comment "This is my new super KPI."@en;
+  rdfs:domain hobbit:Experiment, hobbit:Challenge;
+  rdfs:range xsd:double .
+```
+Note that with this line, we defined the label and description of our KPI as well as its IRI: `http://example.org/ai-winter-school-2024/benchmark/mySuperKpi`. We will need the IRI later on in the implementation. You may want to give your KPI a better IRI, name and description as in this. 😉
+
+We also have to add our new KPI to the list of KPIs that the benchmark has. In the same ttl file, we add the following line:
+```diff
+   hobbit:measuresKPI
+     :avgRuntime,
+     :stdDevRuntime,
++    :mySuperKpi,
+     :faultyResponses;
+```
+
 #### Implementation
 
-TODO
+After we define the meta data for the new KPI, we should add it to the benchmark implementation.
+
+##### Java
+If you use Java, you should have a look at the `evaluate` method of the [BenchmarkController class](https://github.com/hobbit-project/hobbit.examples/blob/main/AI-winter-school-2024/java/benchmark/src/main/java/org/dice_research/hobbit/example/aiws24/BenchmarkController.java):
+```java
+                line = testData.get(i);
+                pos = line.lastIndexOf(FILE_CSV_SEPARATOR);
+                if (pos >= 0) {
+                    line = line.substring(pos + FILE_CSV_SEPARATOR.length()).trim();
+                    if (!line.isEmpty()) {
+                        expectedValue = Double.parseDouble(line);
+                        if (receivedAnswers.containsKey(i)) {
+                            receivedValue = receivedAnswers.get(i);
+                            // Here, we could add some evaluation checking whether the received value fits
+                            // to the expected value.
+                        }
+                    }
+                }
+```
+The lines above iterate over the expected and received answers and would be a good place to compare the `expectedValue` and the `receivedValue` to calculate the value of our newly defined KPI.
+
+When we have calculated the value, we should also add it to the result model. Let's assume that we have stored the value in the variable `newKpiValue`. Then, we could add the following line near the end of the `evaluate` method:
+```java
+         Resource experiment = resultModel.getResource(experimentUri);
+         resultModel.addLiteral(experiment, resultModel.getProperty(BENCHMARK_NAMESPACE + "avgRuntime"), avgRuntime);
+         resultModel.addLiteral(experiment, resultModel.getProperty(BENCHMARK_NAMESPACE + "stdDevRuntime"),
+                 stdDevRuntime);
+         resultModel.addLiteral(experiment, resultModel.getProperty(BENCHMARK_NAMESPACE + "testDataSize"),
+                 (long) testData.size());
+         resultModel.addLiteral(experiment, resultModel.getProperty(BENCHMARK_NAMESPACE + "faultyResponses"),
+                 (long) (timestampsSent.length - timestampsReceived.size()));
++        resultModel.addLiteral(experiment, resultModel.getProperty(BENCHMARK_NAMESPACE + "mySuperKpi"), newKpiValue);
+```
+
+We can build our new benchmark version using the following command:
+```sh
+make build-java-benchmark
+```
+
+##### Python
+
+If you use Python, you should have a look at the `evaluate` method of the [benchmark.py](https://github.com/hobbit-project/hobbit.examples/blob/main/AI-winter-school-2024/python/benchmark/benchmark.py):
+```python
+        for i in range(len(self.test_data)):
+            answer_data = self.answers[i]
+            received_at = self.timestamps_received[i]
+            if answer_data is not None and received_at is not None:
+                # Compare answer_data with the expected answer
+                # expected answer: test_data.iloc[i, expected_result_column]
+                # prediction of the system: answer_data.iloc[0, 1]
+
+                runtimes.append((received_at - self.timestamps_sent[i]) / 1000.0)
+            else:
+                ++error_count
+```
+The lines above iterate over the expected and received answers and would be a good place to compare them and calculate the value of our newly defined KPI.
+
+When we have calculated the value, we should also add it to the result model. Let's assume that we have stored the value in the variable `new_kpi_value`. Then, we could add the following line near the end of the `evaluate` method:
+```python
+         results.append(BenchmarkResult(kpi_iri=BENCHMARK_NAMESPACE+"avgRuntime",
+                                        value=runtime_avg, data_type="xsd:double"))
+         results.append(BenchmarkResult(kpi_iri=BENCHMARK_NAMESPACE + "stdDevRuntime",
+                                        value=runtime_std_dev, data_type="xsd:double"))
+         # Number of test data instances and number of faulty answers
+         results.append(BenchmarkResult(kpi_iri=BENCHMARK_NAMESPACE+"testDataSize",
+                                        value=len(self.test_data), data_type="xsd:long"))
+         results.append(BenchmarkResult(kpi_iri=BENCHMARK_NAMESPACE+"faultyResponses",
+                                        value=error_count, data_type="xsd:long"))
++        results.append(BenchmarkResult(kpi_iri=BENCHMARK_NAMESPACE+"mySuperKpi",
++                                       value=new_kpi_value, data_type="xsd:double"))
+```
+
+We can build our new benchmark version using the following command:
+```sh
+make build-python-benchmark
+```
+
+### 2. Add a System
+
+The available system implementation is just a baseline. It does not make use of the full potential of the training data and is limited in its performance. This can be improved by using various approaches that can be used for a regression. It is mainly up to your which approach you choose. However, the easiest way might be to integrate existing solutions instead of implementing a new one from scratch.
+
+Please choose one of the two available programming languages (either Java or Python) that you can work with and for which you have found a library or a piece of code that can solve a regression. Copy the `baseline-system` directory in the directory of your chosen language. For this example, we will assume that the new directory has the name `my-system`.
+
+#### Implementation
+
+The implementation is highly dependent on the approach that you have chosen. However, we will point you to some parts of the code where you most probably have to apply changes.
+
+##### Java
+
+If you use an existing library, you may have to add it to the `my-system/pom.xml` file.
+
+In `my-system/src/main/java/org/dice_research/hobbit/example/aiws24/BaselineSystem.java`, you will find the implementation of the system, that you can adapt. For our example, we will keep the class and file name since that is easier. The training of the system should be implemented in the `receiveGeneratedData` method. Note that the `lines` String array contains the single CSV lines of the training data.
+
+TODO Implement the parsing of the received task data in the baseline system Java
+TODO add more comments to the code!!!
+
+The `receiveGeneratedTask` method is the place to implement the prediction of the test examples.
+
+When you are done with your code changes, you can build the system from the `AI-winter-school-2024` directory with the following command:
+```sh
+docker build -t ai-ws-2024-my-system -f java/my-system/Dockerfile .
+```
+Note that the image name `ai-ws-2024-java-my-system` can be chosen by you and that the file path `java/my-system/Dockerfile` should fit to your newly created system directory.
+
+##### Python
+
+If you use an existing library, you may have to add it to the `python/requirements.txt` file.
+
+TODO separate the two requirements.txt files.
+
+In `my-system/system.py`, you will find the implementation of the system, that you can adapt. For our example, we will keep the class and file name since that is easier. The training of the system should be implemented in the `process_train_data` method. Note that the `train_data` already contains the training data as `DataFrame` instance.
+
+The `process_task` method is the place to implement the prediction of the test examples. `task_data` contains the complete task data that is sent. Note that the first column is not present in the training data and only contains the task ID, which is extracted and stored as `task_id`. Your implementation should store the result in the `answer` variable that is used to create the message that is sent to the benchmark implementation (`answer_message`).
+
+When you are done with your code changes, you can build the system from the `AI-winter-school-2024` directory with the following command:
+```sh
+docker build -t ai-ws-2024-my-system -f python/my-system/Dockerfile .
+```
+Note that the image name `ai-ws-2024-java-my-system` can be chosen by you and that the file path `java/my-system/Dockerfile` should fit to your newly created system directory.
 
 #### Meta Data Update
 
-TODO
+After implementing the system and creating the Docker image, we have to add its metadata to the HOBBIT platform. We can simply copy one of the two system files (either `ai-ws-2024-system-java.ttl` or `ai-ws-2024-system-python.ttl`) in the `meta` directory. We will assume that new file has the name `ai-ws-2024-my-system.ttl`. It should be also located in the `meta` directory.
 
-### Add a System
+Within the new file, we change the system's IRI, label, description and image name:
+```
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix hobbit: <http://w3id.org/hobbit/vocab#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-TODO
+-<http://example.org/ai-winter-school-2024/base-line-system-java> a  hobbit:SystemInstance;
++<http://example.org/ai-winter-school-2024/my-system> a  hobbit:SystemInstance;
+-	rdfs:label	"Baseline system (Java)"@en;
++	rdfs:label	"My new cool system"@en;
+-	rdfs:comment	"This is a baseline system which always returns the average of the target value that it saw during the training phase. It has been programmed in Java."@en;
++	rdfs:comment	"This is the first attempt to add a new cool system."@en;
+-	hobbit:imageName "ai-ws-2024-java-baseline-system";
++	hobbit:imageName "ai-ws-2024-my-system";
+	hobbit:implementsAPI <http://example.org/ai-winter-school-2024/benchmark/Api> .
+```
+It is important that the image name fits to the image name that we used further above when we build the image. We also should leave the API IRI as it is.
 
-#### Meta Data Update
+After saving these changes, it can take up to 1 or 2 minutes before we can choose our new system in the HOBBIT UI.
 
-TODO
-
-### Dataset Extension
+### 3. Dataset Extension
 
 The current imeplementation contains only the two wine-related datasets of Cortez et al. However, there are other interesting datasets for regression available. If you find such an example (e.g., at https://archive.ics.uci.edu/) you can integrate it into the benchmark.
 
@@ -189,6 +350,11 @@ We also have to ensure that loading the data is adapted. This should be done at 
 ```
 The first line of the method loads the lines of a CSV file. As described above, depending on the new dataset file structure, we suggest to implement the loading in a way that it creates CSV lines of the same structure and provides them as a list of Strings (e.g., as `List<String> lines`).
 
+We can build our new benchmark version using the following command:
+```sh
+make build-java-benchmark
+```
+
 ##### Python
 
 If you use Python, you should have a look at the `prepare_data` method of the [benchmark.py](https://github.com/hobbit-project/hobbit.examples/blob/main/AI-winter-school-2024/python/benchmark/benchmark.py):
@@ -215,3 +381,7 @@ You should add the IRI of your new dataset in an additional `elif` clause to set
 ```
 We also have to ensure that loading the data is adapted. This is currently done in the last line of the previous excerpt, which loads the data from a CSV file using the pandas library. As described above, depending on the new dataset file structure, we suggest to implement the loading in a way that it creates a pandas data frame of the same structure as it would have if we would use the CSV files.
 
+We can build our new benchmark version using the following command:
+```sh
+make build-python-benchmark
+```
