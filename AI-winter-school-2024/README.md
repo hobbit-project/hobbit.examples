@@ -158,7 +158,7 @@ If you use Java, you should have a look at the `evaluate` method of the [Benchma
 The lines above iterate over the expected and received answers and would be a good place to compare the `expectedValue` and the `receivedValue` to calculate the value of our newly defined KPI.
 
 When we have calculated the value, we should also add it to the result model. Let's assume that we have stored the value in the variable `newKpiValue`. Then, we could add the following line near the end of the `evaluate` method:
-```java
+```diff
          Resource experiment = resultModel.getResource(experimentUri);
          resultModel.addLiteral(experiment, resultModel.getProperty(BENCHMARK_NAMESPACE + "avgRuntime"), avgRuntime);
          resultModel.addLiteral(experiment, resultModel.getProperty(BENCHMARK_NAMESPACE + "stdDevRuntime"),
@@ -194,7 +194,7 @@ If you use Python, you should have a look at the `evaluate` method of the [bench
 The lines above iterate over the expected and received answers and would be a good place to compare them and calculate the value of our newly defined KPI.
 
 When we have calculated the value, we should also add it to the result model. Let's assume that we have stored the value in the variable `new_kpi_value`. Then, we could add the following line near the end of the `evaluate` method:
-```python
+```diff
          results.append(BenchmarkResult(kpi_iri=BENCHMARK_NAMESPACE+"avgRuntime",
                                         value=runtime_avg, data_type="xsd:double"))
          results.append(BenchmarkResult(kpi_iri=BENCHMARK_NAMESPACE + "stdDevRuntime",
@@ -261,7 +261,7 @@ Note that the image name `ai-ws-2024-java-my-system` can be chosen by you and th
 After implementing the system and creating the Docker image, we have to add its metadata to the HOBBIT platform. We can simply copy one of the two system files (either `ai-ws-2024-system-java.ttl` or `ai-ws-2024-system-python.ttl`) in the `meta` directory. We will assume that new file has the name `ai-ws-2024-my-system.ttl`. It should be also located in the `meta` directory.
 
 Within the new file, we change the system's IRI, label, description and image name:
-```
+```diff
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix hobbit: <http://w3id.org/hobbit/vocab#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
