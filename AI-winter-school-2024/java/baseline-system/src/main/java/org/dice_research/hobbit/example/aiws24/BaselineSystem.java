@@ -2,6 +2,7 @@ package org.dice_research.hobbit.example.aiws24;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.hobbit.core.Constants;
 import org.hobbit.core.components.AbstractSystemAdapter;
 import org.hobbit.core.rabbit.DataHandler;
@@ -17,7 +18,7 @@ public class BaselineSystem extends AbstractSystemAdapter {
     public static final byte LEARNING_FINISHED_COMMAND = 101;
     public static final String MESSAGE_CSV_SEPARATOR = ";";
 
-    protected String learnedValue = null;
+    protected double learnedValue = 0.0;
 
     @Override
     public void receiveGeneratedData(byte[] data) {
@@ -38,7 +39,7 @@ public class BaselineSystem extends AbstractSystemAdapter {
             }
         }
         if (count > 0) {
-            learnedValue = Double.toString(sum / count);
+            learnedValue = sum / count;
         } else {
             LOGGER.warn("Couldn't get any values to learn.");
         }
@@ -50,12 +51,25 @@ public class BaselineSystem extends AbstractSystemAdapter {
         }
     }
 
-    @Override
-    public void receiveGeneratedTask(String taskId, byte[] data) {
+    /**
+     * This method is called for each test data message received from the benchmark.
+     * 
+     * @param taskId  the ID of the task; it should simply be returned as part of
+     *                the answer.
+     * @param csvData the CSV data of the test case. <b>Note</b>: this data has
+     *                already been pre-processed and comprises only the data values
+     *                without headers and without the column containing the task ID.
+     */
+    public void receiveGeneratedTask(String taskId, String csvData) {
+        // Here, we should use the data in csvData to predict. 
+        // We should write the predicted value to the result variable:
+        double result = learnedValue;
+        
+        // We will send the answer in the expected format. No need to change this.
         StringBuilder messageBuilder = new StringBuilder();
         messageBuilder.append(taskId);
         messageBuilder.append(MESSAGE_CSV_SEPARATOR);
-        messageBuilder.append(learnedValue);
+        messageBuilder.append(Double.toString(result));
         try {
             sender2EvalStore.sendData(RabbitMQUtils.writeString(messageBuilder.toString()));
         } catch (IOException e) {
@@ -86,12 +100,17 @@ public class BaselineSystem extends AbstractSystemAdapter {
                             int endPos = message.indexOf(MESSAGE_CSV_SEPARATOR, startPos);
                             if (endPos >= 0) {
                                 taskId = message.substring(startPos + 1, endPos);
+                                message = message.substring(endPos + MESSAGE_CSV_SEPARATOR.length());
                             }
                         }
-                        byte[] taskData = RabbitMQUtils.writeString(message);
-                        receiveGeneratedTask(taskId, taskData);
+                        receiveGeneratedTask(taskId, message);
                     }
                 }).build();
+    }
+
+    @Override
+    public void receiveGeneratedTask(String taskId, byte[] data) {
+        throw new NotImplementedException("This method shouldn't be called!");
     }
 
 }
