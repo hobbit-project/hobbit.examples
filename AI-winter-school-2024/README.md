@@ -227,14 +227,35 @@ The implementation is highly dependent on the approach that you have chosen. How
 
 If you use an existing library, you may have to add it to the `my-system/pom.xml` file.
 
-In `my-system/src/main/java/org/dice_research/hobbit/example/aiws24/BaselineSystem.java`, you will find the implementation of the system, that you can adapt. For our example, we will keep the class and file name since that is easier. The training of the system should be implemented in the `receiveGeneratedData` method. Note that the `lines` String array contains the single CSV lines of the training data.
+In `my-system/src/main/java/org/dice_research/hobbit/example/aiws24/BaselineSystem.java`, you will find the implementation of the system, that you can adapt. For our example, we will keep the class and file name since that is easier. The training of the system should be implemented in the `receiveGeneratedData` method. Note that the `lines` String array contains the single CSV lines of the training data (including the header).
 
-TODO Implement the parsing of the received task data in the baseline system Java
-TODO add more comments to the code!!!
+The `receiveGeneratedTask` method is the place to implement the prediction of the test examples. The `csvData` string variable contains the test example as CSV data. Note that in the Java implementation, this data has already been pre-processed and comprises only the data values without headers and without the column containing the task ID. The result should be stored in the local `result` variable which is used to create the answer message.
 
-The `receiveGeneratedTask` method is the place to implement the prediction of the test examples.
+When you are done with your code changes, you have to updated the paths in the file `my-system/Dockerfile`:
+```diff
+# Build the project
+FROM maven:3-eclipse-temurin-17 AS build
+WORKDIR /app
+-COPY java/baseline-system/pom.xml pom.xml
++COPY java/my-system/pom.xml pom.xml
+RUN mvn dependency:go-offline
+-COPY java/baseline-system/src src
++COPY java/my-system/src src
+RUN mvn -Dmaven.test.skip=true package
 
-When you are done with your code changes, you can build the system from the `AI-winter-school-2024` directory with the following command:
+# Create the container in which we want to run the program
+FROM openjdk:17-slim
+
+# Define work directory
+WORKDIR /app
+
+# Add the compiled java program
+COPY --from=build /app/target/ai-ws-2024-baseline.jar .
+
+# Run our component
+CMD java -cp ai-ws-2024-baseline.jar org.hobbit.core.run.ComponentStarter org.dice_research.hobbit.example.aiws24.BaselineSystem
+```
+After that, you can use this Dockerfile to build the system from the `AI-winter-school-2024` directory with the following command:
 ```sh
 docker build -t ai-ws-2024-my-system -f java/my-system/Dockerfile .
 ```
@@ -242,19 +263,37 @@ Note that the image name `ai-ws-2024-java-my-system` can be chosen by you and th
 
 ##### Python
 
-If you use an existing library, you may have to add it to the `python/requirements.txt` file.
-
-TODO separate the two requirements.txt files.
+If you use an existing library, you may have to add it to the `my-system/requirements.txt` file.
 
 In `my-system/system.py`, you will find the implementation of the system, that you can adapt. For our example, we will keep the class and file name since that is easier. The training of the system should be implemented in the `process_train_data` method. Note that the `train_data` already contains the training data as `DataFrame` instance.
 
 The `process_task` method is the place to implement the prediction of the test examples. `task_data` contains the complete task data that is sent. Note that the first column is not present in the training data and only contains the task ID, which is extracted and stored as `task_id`. Your implementation should store the result in the `answer` variable that is used to create the message that is sent to the benchmark implementation (`answer_message`).
 
-When you are done with your code changes, you can build the system from the `AI-winter-school-2024` directory with the following command:
+When you are done with your code changes, you have to updated the paths in the file `my-system/Dockerfile`:
+```diff
+# Use a base image with Python and other dependencies
+FROM python:3.10
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy requirements file and install dependencies
+-COPY python/baseline-system/requirements.txt .
++COPY python/my-system/requirements.txt .
+RUN pip install -r requirements.txt
+
+# Copy the system script into the container
+-COPY python/baseline-system/system.py .
++COPY python/my-system/system.py .
+
+# Set the command to run your system script
+CMD ["python", "system.py"]
+```
+After that, you can use this Dockerfile to build the system from the `AI-winter-school-2024` directory with the following command:
 ```sh
 docker build -t ai-ws-2024-my-system -f python/my-system/Dockerfile .
 ```
-Note that the image name `ai-ws-2024-java-my-system` can be chosen by you and that the file path `java/my-system/Dockerfile` should fit to your newly created system directory.
+Note that the image name `ai-ws-2024-java-my-system` can be chosen by you and that the file path `java/my-system/Dockerfile` should fit to your updated Dockerfile.
 
 #### Meta Data Update
 
