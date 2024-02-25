@@ -24,6 +24,11 @@ public class BaselineSystem extends AbstractSystemAdapter {
     public void receiveGeneratedData(byte[] data) {
         String message = RabbitMQUtils.readString(data);
         String[] lines = message.split("\n");
+        // the lines variable contains the content of the received CSV data. Note that
+        // the first line is the header.
+
+        // In the following, we could use the values in the single CSV lines to learn something.
+        // In this example, we will extract the target value from the CSV lines and calculate their average.
         double sum = 0;
         int count = 0;
         int pos;
@@ -43,6 +48,8 @@ public class BaselineSystem extends AbstractSystemAdapter {
         } else {
             LOGGER.warn("Couldn't get any values to learn.");
         }
+
+        // Whatever we learned above, we should tell the benchmark that we are done with learning
         try {
             sendToCmdQueue(LEARNING_FINISHED_COMMAND);
         } catch (IOException e) {
@@ -61,10 +68,10 @@ public class BaselineSystem extends AbstractSystemAdapter {
      *                without headers and without the column containing the task ID.
      */
     public void receiveGeneratedTask(String taskId, String csvData) {
-        // Here, we should use the data in csvData to predict. 
+        // Here, we should use the data in csvData to predict.
         // We should write the predicted value to the result variable:
         double result = learnedValue;
-        
+
         // We will send the answer in the expected format. No need to change this.
         StringBuilder messageBuilder = new StringBuilder();
         messageBuilder.append(taskId);
