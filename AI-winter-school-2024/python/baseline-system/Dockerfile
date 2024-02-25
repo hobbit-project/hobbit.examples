@@ -5,7 +5,7 @@ FROM python:3.10
 WORKDIR /app
 
 # Copy requirements file and install dependencies
-COPY python/requirements.txt .
+COPY python/baseline-system/requirements.txt .
 RUN pip install -r requirements.txt
 
 # Copy the system script into the container
