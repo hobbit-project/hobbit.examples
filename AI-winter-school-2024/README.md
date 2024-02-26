@@ -29,24 +29,38 @@ The benchmark should measure the effectiveness and efficiency of a system. While
 ### Benchmark Design
 
 A major part of the work on a benchmark is to define its internal workflow and the API that the system has to implement to be evaluated by the benchmark. For this example, we use a quite simple setup with only two containers—a benchmark and a system container. In addition to the [general API of the HOBBIT platform](system_integration_api.html) that has to be implemented by the system, the benchark's API comprises the following parts:
-1. The task definition above already stated that the data has to be split to get training and test data. We define that 10% of the dataset are randomly chosen as test dataset. The remaining 90% are used as training data and are sent to the system at the beginning as a CSV file of the form above.
-2. The system should have the time to train an internal algorithm using the training data. Hence, the evaluation of the system should only start after the system signalled that the internal training has finished and that it is ready to be benchmarked.
-3. The benchmark will sent the single tasks (i.e., the instances of the test set) as CSV comprising the headline and a single data line. The first column of the line contains the ID of the task, which has to be part of the response. The column with the quality level is removed before submission.
-4. The system is expected to send a single CSV line comprising two values: Firstly, the task ID. Secondly, the value that it predicts for the task.
+1. The task definition above already stated that the data has to be split to get training and test data. We define that 10% of the dataset are randomly chosen as test dataset. The remaining 90% are used as training data and are sent to the system at the beginning as a String containing CSV data in the following form (Note that the Python benchmark implementation does not add the quotation characters):
+```
+;"fixed acidity";"volatile acidity";"citric acid";"residual sugar";"chlorides";"free sulfur dioxide";"total sulfur dioxide";"density";"pH";"sulphates";"alcohol";"quality"
+0;7;0.27;0.36;20.7;0.045;45;170;1.001;3;0.45;8.8;6
+1;6.3;0.3;0.34;1.6;0.049;14;132;0.994;3.3;0.49;9.5;6
+2;8.1;0.28;0.4;6.9;0.05;30;97;0.9951;3.26;0.44;10.1;6
+3;7.2;0.23;0.32;8.5;0.058;47;186;0.9956;3.19;0.4;9.9;6
+```
+2. The system should have the time to train an internal algorithm using the training data. Hence, the evaluation of the system only starts after the system signalled that the internal training has finished and that it is ready to be benchmarked.
+3. The benchmark will sent the single tasks (i.e., the instances of the test set) as CSV comprising the headline and a single data line. The first column of the line contains the ID of the task, which has to be part of the response. The column with the quality level is removed before submission:
+```
+;"fixed acidity";"volatile acidity";"citric acid";"residual sugar";"chlorides";"free sulfur dioxide";"total sulfur dioxide";"density";"pH";"sulphates";"alcohol";"quality"
+0;7;0.27;0.36;20.7;0.045;45;170;1.001;3;0.45;8.8;6
+```
+4. The system is expected to send a single CSV line comprising two values: Firstly, the task ID. Secondly, the value that it predicts for the task. In the following example, the task with the ID `0` is answered with the predicted quality `7`:
+```
+0;7.0
+```
 
-Our benchmark will have several parameters:
+Our benchmark has several parameters:
 * **Dataset**: There are two wine datasets. One for red and a second for white wine. The user should be able to choose which dataset they want to use.
 * **Seed**: The split into train and test data will be done randomly. However, the user should be able to define a seed value to ensure that an experiment is repeatable.
-* **Test dataset size**: The benchmark should report the size of the randomly created test dataset.
+* **Test dataset size**: This parameter cannot be set. However, the benchmark reports the size of the randomly created test dataset.
 
-The benchmark should provide the following evaluation results (also called key performance indicators (KPIs)):
+The benchmark provides the following evaluation results (also called key performance indicators (KPIs)):
 * **Runtime**: The average runtime that the system needs to answer a request (including its standard deviation).
 * **Faulty responses**: The number of faulty responses that the system may have produced. This avoids to include them into the error calculation and allows the benchmark to report that the system did not always create correctly formed answers.
 
 The figure below gives an overview of the benchmark and its components as well as the type of data that they send to each other.
 
 <p align="center">
-  <img src="/images/Components-diagram-wine-benchmark.svg" />
+  <img src="https://raw.githubusercontent.com/hobbit-project/hobbit.examples/main/AI-winter-school-2024/Components-diagram-wine-benchmark-simple.svg" />
 </p>
 
 ## Prerequisites
