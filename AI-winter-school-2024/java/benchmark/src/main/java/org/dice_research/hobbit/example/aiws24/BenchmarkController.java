@@ -14,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
+import org.hobbit.core.Commands;
 import org.hobbit.core.Constants;
 import org.hobbit.core.components.AbstractBenchmarkController;
 import org.hobbit.core.rabbit.DataHandler;
@@ -105,6 +106,8 @@ public class BenchmarkController extends AbstractBenchmarkController {
         sendNextTask();
         // Wait for the tasks to finish.
         waitForTasksToFinish();
+        // Let the system know that we are done
+        sendTasksFinished();
         // Run evaluation
         evaluate();
         // Send the resultModul to the platform controller and terminate
@@ -135,9 +138,13 @@ public class BenchmarkController extends AbstractBenchmarkController {
 
     protected void sendTrainingData() throws IOException {
         StringBuilder trainingData = new StringBuilder(dataHeaderLine);
-        for (String line : trainData) {
+        for (int i = 0; i < trainData.size(); ++i) {
             trainingData.append('\n');
-            trainingData.append(line);
+            // Training data should be preceded with the ID of the line within the training
+            // data
+            trainingData.append(i);
+            trainingData.append(MESSAGE_CSV_SEPARATOR);
+            trainingData.append(trainData.get(i));
         }
         trainingDataSender.sendData(RabbitMQUtils.writeString(trainingData.toString()));
     }
@@ -274,6 +281,16 @@ public class BenchmarkController extends AbstractBenchmarkController {
             systemFinishedLearningMutex.acquire();
         } catch (InterruptedException e) {
             String errorMsg = "Interrupted while waiting for the benchmarked system to finish its learning phase.";
+            LOGGER.error(errorMsg);
+            throw new IllegalStateException(errorMsg, e);
+        }
+    }
+
+    protected void sendTasksFinished() {
+        try {
+            sendToCmdQueue(Commands.TASK_GENERATION_FINISHED);
+        } catch (IOException e) {
+            String errorMsg = "Couldn't send the " + Commands.TASK_GENERATION_FINISHED + " command. Aborting.";
             LOGGER.error(errorMsg);
             throw new IllegalStateException(errorMsg, e);
         }
