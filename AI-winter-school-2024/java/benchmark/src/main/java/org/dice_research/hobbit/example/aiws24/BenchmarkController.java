@@ -138,6 +138,9 @@ public class BenchmarkController extends AbstractBenchmarkController {
 
     protected void sendTrainingData() throws IOException {
         StringBuilder trainingData = new StringBuilder(dataHeaderLine);
+        // Add separator to insert a column for the line IDs
+        trainingData.append(MESSAGE_CSV_SEPARATOR);
+        trainingData.append(dataHeaderLine);
         for (int i = 0; i < trainData.size(); ++i) {
             trainingData.append('\n');
             // Training data should be preceded with the ID of the line within the training
