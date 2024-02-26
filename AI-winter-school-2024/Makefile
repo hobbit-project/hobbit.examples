@@ -31,6 +31,7 @@ create-networks:
 	@docker network inspect hobbit-services >/dev/null || (docker network create -d overlay --attachable --subnet 172.16.102.0/24 hobbit-services && echo "Created network: hobbit-services")
 
 start-hobbit-platform:
+	if [ ! -d "config/db" ]; then unzip "config/db.zip" -d config; fi
 	$(DOCKER_COMPOSE) up -d
 
 stop-hobbit-platform:
