@@ -143,6 +143,7 @@ class AIWinterSchoolBenchmark:
                 # Compare answer_data with the expected answer
                 # expected answer: test_data.iloc[i, expected_result_column]
                 # prediction of the system: answer_data.iloc[0, 1]
+                print(f"expected: {self.test_data.iloc[i, expected_result_column]} predicted: {answer_data.iloc[0, 1]}")
 
                 runtimes.append((received_at - self.timestamps_sent[i]) / 1000.0)
             else:
@@ -369,7 +370,7 @@ class AIWinterSchoolBenchmark:
                 response_data = pd.read_csv(io.StringIO(str_data), sep=MESSAGE_CSV_SEPARATOR, header=None)
                 # The first element should be the task ID
                 task_id = response_data.iloc[0, 0]
-                self.answers[task_id] = task_id
+                self.answers[task_id] = response_data
                 self.timestamps_received[task_id] = timestamp_received
                 logger.info(f"Received an answer for #{task_id} at {timestamp_received}...")
             except Exception as e:
